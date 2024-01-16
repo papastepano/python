@@ -19,3 +19,16 @@ class ShoppingList:
 # -------------------------
 # Write your solution here:
 # -------------------------
+def total_units(my_list: ShoppingList):
+    total = 0
+    for item in my_list.products:
+        total += item[1]
+    return total
+
+if __name__ == "__main__":
+    my_list = ShoppingList()
+    my_list.add("bananas", 10)
+    my_list.add("apples", 5)
+    my_list.add("pineapple", 1)
+
+    print(total_units(my_list))
