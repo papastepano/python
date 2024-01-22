@@ -1,5 +1,4 @@
 # WRITE YOUR SOLUTION HERE:
-
 class Pet:
     def __init__(self, name: str, description: str):
         self.name = name
@@ -14,4 +13,5 @@ class Person:
         self.pet = pet
 
     def __str__(self):
-        return self.name
+        # return self.name
+        return f"{self.name}, whose pal is {self.pet.name}, a {self.pet.description}"
