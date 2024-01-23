@@ -43,7 +43,7 @@ block. The following row should be moved:
         from src.service_charge import BankAccount
         a = BankAccount("Test","12345",1.0)
         try:
-             val = a.balance
+             val = a.__balance
              taip = str(type(val)).replace("<class '","").replace("'>","")
              self.assertTrue(type(val) == float, f'Getter method balance should return an integer. ' +
                 f'Now it returns a value {val} which is of type {taip}.')
@@ -94,10 +94,10 @@ block. The following row should be moved:
             corr *= 0.99
             tests += f"\ndeposit({test_case})"
 
-            self.assertAlmostEqual(a.balance, corr, 2, f'Balance should be {corr} when the class has been initialized as follows:\n' +
+            self.assertAlmostEqual(a.__balance, corr, 2, f'Balance should be {corr} when the class has been initialized as follows:\n' +
                 f'BankAccount("Test","12345",0)' + 
                 f'\nand method deposit has been called ' + 
-                f'as follows:\n{tests}\nNow balance is {a.balance}')
+                f'as follows:\n{tests}\nNow balance is {a.__balance}')
 
     def test5_test_withdraw(self):
         from src.service_charge import BankAccount
@@ -111,10 +111,10 @@ block. The following row should be moved:
             corr *= 0.99
             tests += f"\nwithdraw({test_case})"
 
-            self.assertAlmostEqual(a.balance, corr, 2, f'Balance should be {corr} when the class has been initialized as follows:\n' +
+            self.assertAlmostEqual(a.__balance, corr, 2, f'Balance should be {corr} when the class has been initialized as follows:\n' +
                 f'BankAccount("Test","12345",0)' + 
                 f'\nand method withdraw has been called' + 
-                f'as follows:\n{tests}\nNow balance is {a.balance}')
+                f'as follows:\n{tests}\nNow balance is {a.__balance}')
 
 if __name__ == '__main__':
     unittest.main()
