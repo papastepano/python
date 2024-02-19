@@ -1,7 +1,7 @@
 # Complete your game here
 import pygame
 
-class Sokoban:
+class Frog:
     def __init__(self):
         pygame.init()
         
@@ -10,38 +10,33 @@ class Sokoban:
         
         self.height = len(self.map)
         self.width = len(self.map[0])
-        self.scale = self.images[0].get_width()
+        self.scale = self.images[1].get_height()
 
         window_height = self.scale * self.height
         window_width = self.scale * self.width
         self.window = pygame.display.set_mode((window_width, window_height + self.scale))
 
         self.game_font = pygame.font.SysFont("Arial", 24)
-        pygame.display.set_caption("Sokoban")
+        pygame.display.set_caption("Frog")
 
         self.main_loop()
 
     def load_images(self):
         self.images = []
-        for name in ["floor", "wall", "target", "box", "robot", "done", "target_robot"]:
+        for name in ["coin", "door", "monster", "robot"]:
             self.images.append(pygame.image.load(name + ".png"))
 
     def new_game(self):
         self.moves = 0
+        self.coins = 0
 
-        # 0: Floor, where the player and boxes can move
-        # 1: Wall, which is impassable
-        # 2: Target spot, where boxes need to be moved
-        # 3: Box, which the player can push around
-        # 4: Robot, which is the player character controlled by the user
-        # 5: Box on a target spot
-        # 6: Robot on a target spot
-        self.map = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    [1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-                    [1, 2, 3, 0, 0, 0, 1, 0, 0, 1, 2, 3, 0, 0, 0, 0, 1],
-                    [1, 0, 0, 1, 2, 3, 0, 2, 3, 0, 0, 0, 1, 0, 0, 0, 1],
-                    [1, 0, 4, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+        self.map = [[9, 9, 1, 9, 9, 9, 9, 9, 1, 9, 9, 9, 9, 9, 9, 9, 9],
+                    [9, 8, 8, 2, 8, 8, 8, 8, 8, 8, 8, 8, 2, 8, 8, 8, 9],
+                    [9, 8, 0, 8, 8, 8, 2, 8, 8, 2, 8, 0, 8, 8, 8, 8, 9],
+                    [9, 8, 8, 2, 8, 0, 8, 8, 0, 8, 8, 8, 2, 8, 8, 8, 9],
+                    [9, 8, 8, 8, 8, 8, 2, 8, 8, 2, 8, 8, 8, 8, 8, 8, 9],
+                    [9, 8, 8, 8, 8, 8, 8, 8, 3, 8, 8, 8, 8, 8, 8, 8, 9],
+                    [9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9]]
 
     def main_loop(self):
         while True:
@@ -55,29 +50,28 @@ class Sokoban:
 
         self.moves += 1
         robot_old_y, robot_old_x = self.find_robot() 
+        # print(robot_old_y, robot_old_x, self.map[robot_old_y][robot_old_x])
         robot_new_y = robot_old_y + move_y
         robot_new_x = robot_old_x + move_x
+        # print(robot_new_y, robot_new_x, self.map[robot_new_y][robot_new_x])
 
-        if self.map[robot_new_y][robot_new_x] == 1:
+        # Did the robot hit a wall?
+        if self.map[robot_new_y][robot_new_x] == 9:
             return
 
-        if self.map[robot_new_y][robot_new_x] in [3, 5]:
-            box_new_y = robot_new_y + move_y
-            box_new_x = robot_new_x + move_x
+        # collect a coin
+        if self.map[robot_new_y][robot_new_x] == 0:
+            self.map[robot_new_y][robot_new_x] = 8
+            self.coins += 1
 
-            if self.map[box_new_y][box_new_x] in [1, 3, 5]:
-                return
-
-            self.map[robot_new_y][robot_new_x] -= 3
-            self.map[box_new_y][box_new_x] += 3
-
-        self.map[robot_old_y][robot_old_x] -= 4
-        self.map[robot_new_y][robot_new_x] += 4
+        self.map[robot_old_y][robot_old_x] += 5
+        self.map[robot_new_y][robot_new_x] = abs(self.map[robot_new_y][robot_new_x] - 5)
+        print('latest', self.map[robot_new_y][robot_new_x])
 
     def find_robot(self ):
         for y in range(self.height):
             for x in range(self.width):
-                if self.map[y][x] in [4, 6]:
+                if self.map[y][x] in [3, 4]:
                     return (y, x)
 
     def check_events(self):
@@ -102,21 +96,47 @@ class Sokoban:
                 exit()
 
     def draw_window(self):
-        self.window.fill((0, 0, 0))
+        self.window.fill((255, 255, 255))
 
         game_text = self.game_font.render("Moves: " + str(self.moves), True, (255, 0, 0))
         self.window.blit(game_text, (25, self.height * self.scale + 10))
 
-        game_text = self.game_font.render("F2 = new game", True, (255, 0, 0))
+        game_text = self.game_font.render("Coins:"  + str(self.coins), True, (255, 0, 0))
         self.window.blit(game_text, (200, self.height * self.scale + 10))
 
-        game_text = self.game_font.render("Esc = exit game", True, (255, 0, 0))
+        game_text = self.game_font.render("F2 = new game", True, (255, 0, 0))
         self.window.blit(game_text, (400, self.height * self.scale + 10))
+
+
+        game_text = self.game_font.render("Esc = exit game", True, (255, 0, 0))
+        self.window.blit(game_text, (600, self.height * self.scale + 10))
 
         for y in range(self.height):
             for x in range(self.width):
                 square = self.map[y][x]
-                self.window.blit(self.images[square], (x * self.scale, y * self.scale))
+                cell_center_x = x * self.scale + self.scale // 2
+                cell_center_y = y * self.scale + self.scale // 2
+                
+                if square == 8:  # If the tile is a floor
+                    pygame.draw.rect(self.window, (255, 255, 255), (x * self.scale, y * self.scale, self.scale, self.scale))
+                elif square == 9:  # If the tile is a wall
+                    pygame.draw.rect(self.window, (0, 0, 0), (x * self.scale, y * self.scale, self.scale, self.scale))
+                elif square == 4:  # If the tile is a wall
+                    image = self.images[3]
+                    image_width = image.get_width()
+                    image_height = image.get_height()
+                    image_top_left_x = cell_center_x - image_width // 2
+                    image_top_left_y = cell_center_y - image_height // 2
+                    self.window.blit(image, (image_top_left_x, image_top_left_y))
+                else:
+                    # For other tiles, use the respective image
+                    image = self.images[square]
+                    image_width = image.get_width()
+                    image_height = image.get_height()
+                    image_top_left_x = cell_center_x - image_width // 2
+                    image_top_left_y = cell_center_y - image_height // 2
+                    self.window.blit(image, (image_top_left_x, image_top_left_y))
+
 
         if self.game_solved():
             game_text = self.game_font.render("Congratulations, you solved the game!", True, (255, 0, 0))
@@ -128,11 +148,10 @@ class Sokoban:
         pygame.display.flip()
 
     def game_solved(self):
-        for y in range(self.height):
-            for x in range(self.width):
-                if self.map[y][x] in [2, 6]:
-                    return False
-        return True
+        y, x = self.find_robot()
+        if self.map[y][x] == 4:
+            return True
+        return False
 
 if __name__ == "__main__":
-    Sokoban()
+    Frog()
